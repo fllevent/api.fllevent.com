@@ -92,8 +92,8 @@ func addevent(db *sql.DB) gin.HandlerFunc {
 
 func getsingleevent(db *sql.DB) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		EventName := c.Param("name")
-		EventRows, EventErr := db.Query("SELECT * FROM events WHERE eventName=?", EventName)
+		Name := c.Param("name")
+		EventRows, EventErr := db.Query("SELECT * FROM events WHERE eventName= ?", Name)
 		handleErr(400, EventErr, c)
 		var arrayEvent []Event
 		for EventRows.Next() {
