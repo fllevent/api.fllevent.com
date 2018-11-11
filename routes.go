@@ -187,6 +187,73 @@ func getallevents(db *sql.DB) gin.HandlerFunc {
 	return gin.HandlerFunc(fn)
 }
 
+func getteam(db *sql.DB) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		teamnumber := c.Param("number")
+		teamRows, teamErr := db.Query("SELECT * FROM matches WHERE teamNumber = ?", teamnumber)
+		handleErr(400, teamErr, c)
+		var matchesArray []Matches
+		for teamRows.Next() {
+			var matchID int
+			var teamName string
+			var teamNumber int
+			var eventName string
+			var matchScoreOne int
+			var matchScoreTwo int
+			var matchScoreThree int
+			var year int
+			teamErr = teamRows.Scan(&matchID, &teamName, &teamNumber, &eventName, &matchScoreOne, &matchScoreTwo, &matchScoreThree, &year)
+			handleErr(400, teamErr, c)
+			f := Matches{
+				MatchID:         matchID,
+				TeamName:        teamName,
+				TeamNumber:      teamNumber,
+				EventName:       eventName,
+				MatchScoreOne:   matchScoreOne,
+				MatchScoreTwo:   matchScoreTwo,
+				MatchScoreThree: matchScoreThree,
+				Year:            year,
+			}
+			matchesArray = append(matchesArray, f)
+		}
+		c.JSON(200, matchesArray)
+	}
+	return gin.HandlerFunc(fn)
+}
+
+func getteams(db *sql.DB) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		teamRows, teamErr := db.Query("SELECT * FROM matches")
+		handleErr(400, teamErr, c)
+		var matchesArray []Matches
+		for teamRows.Next() {
+			var matchID int
+			var teamName string
+			var teamNumber int
+			var eventName string
+			var matchScoreOne int
+			var matchScoreTwo int
+			var matchScoreThree int
+			var year int
+			teamErr = teamRows.Scan(&matchID, &teamName, &teamNumber, &eventName, &matchScoreOne, &matchScoreTwo, &matchScoreThree, &year)
+			handleErr(400, teamErr, c)
+			f := Matches{
+				MatchID:         matchID,
+				TeamName:        teamName,
+				TeamNumber:      teamNumber,
+				EventName:       eventName,
+				MatchScoreOne:   matchScoreOne,
+				MatchScoreTwo:   matchScoreTwo,
+				MatchScoreThree: matchScoreThree,
+				Year:            year,
+			}
+			matchesArray = append(matchesArray, f)
+		}
+		c.JSON(200, matchesArray)
+	}
+	return gin.HandlerFunc(fn)
+}
+
 func handleErr(errorCode int, err error, c *gin.Context) {
 	if err != nil {
 		c.JSON(errorCode, err)

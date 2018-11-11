@@ -55,6 +55,10 @@ func main() {
 	router.GET("/api/events", getallevents(DB))
 	router.POST("/api/event/:name", getsingleevent(DB))
 	router.GET("/api/event/:name", getsingleevent(DB))
+	router.GET("/api/teams", getteams(DB))
+	router.POST("/api/teams", getteams(DB))
+	router.GET("/api/team/:number", getteam(DB))
+	router.POST("/api/team/:number", getteam(DB))
 	router.POST("/api/addevent", addevent(DB))
 	router.POST("/api/removeevent", removeevent(DB))
 
