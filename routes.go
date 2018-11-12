@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,11 +25,62 @@ type Matches struct {
 	Year            int
 }
 
+type login struct {
+	Username string `form:"username" json:"username" binding:"required"`
+	Password string `form:"password" json:"password" binding:"required"`
+}
+
+type newuser struct {
+	UserName string
+	Level    int
+	Password string
+}
+
+var identityKey = "id"
+
+func helloHandler(c *gin.Context) {
+	claims := jwt.ExtractClaims(c)
+	user, _ := c.Get(identityKey)
+	c.JSON(200, gin.H{
+		"userID":   claims["id"],
+		"userName": user.(*User).UserName,
+		"text":     "Hello World.",
+	})
+}
+
 var healthOK = fmt.Sprintf("{\"message\":\"ok\", \"version\":\"%s\"}\n", versionNumber)
 
 func healthcheck() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		c.JSON(200, "healthOK")
+	}
+
+	return gin.HandlerFunc(fn)
+}
+
+func newUser(db *sql.DB) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		var newuserInternal newuser
+		if c.ShouldBind(&newuserInternal) == nil {
+			newUserStmt, newUserStmtErr := db.Prepare("INSERT users (username, level, password) VALUES (?, ?, ?)")
+			handleErr(400, newUserStmtErr, c)
+
+			pass, passerr := HashPassword(newuserInternal.Password)
+			handleErr(400, passerr, c)
+
+			newUserRes, newuserErr := newUserStmt.Exec(newuserInternal.UserName, newuserInternal.Level, pass)
+			handleErr(400, newuserErr, c)
+
+			id, err := newUserRes.LastInsertId()
+			handleErr(400, err, c)
+
+			c.JSON(200, gin.H{
+				"id":       id,
+				"UserName": newuserInternal.UserName,
+				"Level":    newuserInternal.Level,
+			})
+
+		}
 	}
 
 	return gin.HandlerFunc(fn)
