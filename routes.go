@@ -44,7 +44,7 @@ func helloHandler(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"userID":   claims["id"],
 		"userName": user.(*User).UserName,
-		"text":     "Hello World.",
+		"text":     "Hello.",
 	})
 }
 

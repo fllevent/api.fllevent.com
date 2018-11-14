@@ -1,14 +1,17 @@
 FROM golang:latest 
-RUN mkdir /app 
-ADD . /app/ 
-WORKDIR /app 
-RUN go get github.com/gin-gonic/gin
-RUN go get github.com/go-sql-driver/mysql
-RUN go get github.com/joho/godotenv
-RUN go get github.com/appleboy/gin-jwt
-RUN go get golang.org/x/crypto/bcrypt
-RUN go build -o main . 
-
 EXPOSE 8000:8000
 
-CMD ["/app/main"]
+RUN  mkdir -p /go/src \
+  && mkdir -p /go/bin \
+  && mkdir -p /go/pkg
+ENV GOPATH=/go
+ENV PATH=$GOPATH/bin:$PATH   
+
+# now copy your app to the proper build path
+RUN mkdir -p $GOPATH/src/app 
+ADD . $GOPATH/src/app
+
+# should be able to build now
+WORKDIR $GOPATH/src/app 
+RUN go build -o main . 
+CMD ["/go/src/app/main"]
