@@ -52,7 +52,7 @@ var healthOK = fmt.Sprintf("{\"message\":\"ok\", \"version\":\"%s\"}\n", version
 
 func healthcheck() gin.HandlerFunc {
 	fn := func(c *gin.Context) {
-		c.JSON(200, "healthOK")
+		c.JSON(200, healthOK)
 	}
 
 	return gin.HandlerFunc(fn)
