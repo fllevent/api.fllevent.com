@@ -4,13 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 
-	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 )
 
 type Event struct {
 	EventID   int
 	EventName string
+	Owner     int
 	Match     []Matches
 }
 
@@ -39,13 +39,25 @@ type newuser struct {
 var identityKey = "id"
 
 func helloHandler(c *gin.Context) {
-	claims := jwt.ExtractClaims(c)
+	// claims := jwt.ExtractClaims(c)
 	user, _ := c.Get(identityKey)
-	c.JSON(200, gin.H{
-		"userID":   claims["id"],
-		"userName": user.(*User).UserName,
-		"text":     "Hello.",
-	})
+	UserRows, UserErr := DB.Query("SELECT * FROM users WHERE username= ?", user.(*User).UserName)
+	handleErr(400, UserErr, c)
+	for UserRows.Next() {
+		var userID int
+		var username string
+		var level int
+		var password string
+		UserErr = UserRows.Scan(&userID, &username, &level, &password)
+		c.JSON(200, gin.H{
+			"userID":   userID,
+			"userName": username,
+			"text":     "Hello.",
+		})
+	}
+	// c.JSON(200, gin.H{
+	// 	"error": user,
+	// })
 }
 
 var healthOK = fmt.Sprintf("{\"message\":\"ok\", \"version\":\"%s\"}\n", versionNumber)
@@ -118,20 +130,21 @@ func addevent(db *sql.DB) gin.HandlerFunc {
 		var event Event
 		if c.ShouldBind(&event) == nil {
 			//insert
-			stmt, err := db.Prepare("INSERT events SET eventname = ?")
+			stmt, err := db.Prepare("INSERT events (eventname, eventOwner) VALUES (?, ?)")
 			handleErr(400, err, c)
-			if event.EventName != "" {
+			if (event.EventName != "") && (event.Owner != 0) {
 
-				res, err := stmt.Exec(event.EventName)
+				res, err := stmt.Exec(event.EventName, event.Owner)
 				handleErr(400, err, c)
 
 				id, err := res.LastInsertId()
 				handleErr(400, err, c)
 
 				c.JSON(200, gin.H{
-					"sucess":     "sucess",
-					"id":         id,
-					"Event Name": event.EventName,
+					"sucess":      "sucess",
+					"id":          id,
+					"Event Name":  event.EventName,
+					"Event Owner": event.Owner,
 				})
 			} else {
 				c.JSON(400, "No name Given")

@@ -25,6 +25,7 @@ var (
 // User
 type User struct {
 	UserName string
+	ID       int
 }
 
 func init() {
@@ -84,20 +85,21 @@ func main() {
 			if err := c.ShouldBind(&loginVals); err != nil {
 				return "", jwt.ErrMissingLoginValues
 			}
-			userId := loginVals.Username
+			userName := loginVals.Username
 			Password := loginVals.Password
 
-			UserRows, UserErr := DB.Query("SELECT * FROM users WHERE username= ?", userId)
+			UserRows, UserErr := DB.Query("SELECT * FROM users WHERE username= ?", userName)
 			handleErr(400, UserErr, c)
 			for UserRows.Next() {
-				var userID string
+				var userID int
 				var username string
 				var level int
 				var password string
 				UserErr = UserRows.Scan(&userID, &username, &level, &password)
-				if (userId == userID) || (CheckPasswordHash(Password, password)) {
+				if (username == userName) || (CheckPasswordHash(Password, password)) {
 					return &User{
 						UserName: username,
+						ID:       userID,
 					}, nil
 				}
 			}
@@ -109,13 +111,13 @@ func main() {
 				UserRows, UserErr := DB.Query("SELECT * FROM users WHERE username= ?", v.UserName)
 				handleErr(400, UserErr, c)
 				for UserRows.Next() {
-					var userID string
+					var userID int
 					var username string
 					var level int
 					var password string
 					UserErr = UserRows.Scan(&userID, &username, &level, &password)
 
-					if level == 1 {
+					if level >= 1 {
 						return true
 					}
 					return false
