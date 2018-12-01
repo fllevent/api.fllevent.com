@@ -165,7 +165,7 @@ func main() {
 		c.JSON(404, gin.H{"code": "PAGE_NOT_FOUND", "message": "Page not found"})
 	})
 
-	authRouter := router.Group("/api/auth")
+	authRouter := router.Group("/api/v1/auth")
 
 	// Refresh time can be longer than token timeout
 	authRouter.GET("/refresh_token", authMiddleware.RefreshHandler)
@@ -176,16 +176,16 @@ func main() {
 		authRouter.POST("/event/removeevent", removeevent(DB))
 	}
 
-	router.GET("/api/healthcheck", healthcheck())
-	router.POST("/api/event/allevents", getallevents(DB))
-	router.GET("/api/event/allevents", getallevents(DB))
-	router.POST("/api/event/singleevent/:name", getsingleevent(DB))
-	router.GET("/api/event/singleevent/:name", getsingleevent(DB))
-	router.GET("/api/team/allteams", getteams(DB))
-	router.POST("/api/team/allteams", getteams(DB))
-	router.GET("/api/team/singleteam/:number", getteam(DB))
-	router.POST("/api/team/singleteam/:number", getteam(DB))
-	router.POST("/api/user/newuser", newUser(DB))
+	router.GET("/api/v1/healthcheck", healthcheck())
+	router.POST("/api/v1/event/allevents", getallevents(DB))
+	router.GET("/api/v1/event/allevents", getallevents(DB))
+	router.POST("/api/v1/event/singleevent/:name", getsingleevent(DB))
+	router.GET("/api/v1/event/singleevent/:name", getsingleevent(DB))
+	router.GET("/api/v1/team/allteams", getteams(DB))
+	router.POST("/api/v1/team/allteams", getteams(DB))
+	router.GET("/api/v1/team/singleteam/:number", getteam(DB))
+	router.POST("/api/v1/team/singleteam/:number", getteam(DB))
+	router.POST("/api/v1/user/newuser", newUser(DB))
 
 	fmt.Println("Starting Server on port" + webServerPort)
 	router.Run(webServerPort) // listen and serve on port

@@ -163,8 +163,9 @@ func getsingleevent(db *sql.DB) gin.HandlerFunc {
 		var arrayEvent []Event
 		for EventRows.Next() {
 			var eventID int
+			var Owner int
 			var eventName string
-			EventErr = EventRows.Scan(&eventID, &eventName)
+			EventErr = EventRows.Scan(&eventID, &Owner, &eventName)
 			handleErr(400, EventErr, c)
 			MatchRows, MatchErr := db.Query("SELECT * FROM matches WHERE eventName= ?", eventName)
 			handleErr(400, MatchErr, c)
@@ -195,6 +196,7 @@ func getsingleevent(db *sql.DB) gin.HandlerFunc {
 			b := Event{
 				EventID:   eventID,
 				EventName: eventName,
+				Owner:     Owner,
 				Match:     matchesArray,
 			}
 			arrayEvent = append(arrayEvent, b)
@@ -211,8 +213,9 @@ func getallevents(db *sql.DB) gin.HandlerFunc {
 		var arrayEvent []Event
 		for EventRows.Next() {
 			var eventID int
+			var Owner int
 			var eventName string
-			EventErr = EventRows.Scan(&eventID, &eventName)
+			EventErr = EventRows.Scan(&eventID, &Owner, &eventName)
 			handleErr(400, EventErr, c)
 			MatchRows, MatchErr := db.Query("SELECT * FROM matches WHERE eventName= ?", eventName)
 			handleErr(400, MatchErr, c)
@@ -243,6 +246,7 @@ func getallevents(db *sql.DB) gin.HandlerFunc {
 			b := Event{
 				EventID:   eventID,
 				EventName: eventName,
+				Owner:     Owner,
 				Match:     matchesArray,
 			}
 			arrayEvent = append(arrayEvent, b)
