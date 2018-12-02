@@ -174,7 +174,9 @@ func main() {
 		authRouter.GET("/hello", helloHandler)
 		authRouter.POST("/event/addevent", addevent(DB))
 		authRouter.POST("/event/removeevent", removeevent(DB))
-		authRouter.POST("/matches/addmatch", addMatches(DB))
+		authRouter.POST("/matches/addmatch", addMatch(DB))
+		authRouter.POST("/matches/removematch", removeMatch(DB))
+
 	}
 
 	router.GET("/api/v1/healthcheck", healthcheck())

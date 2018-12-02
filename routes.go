@@ -36,7 +36,7 @@ type newuser struct {
 	Password string
 }
 
-func addMatches(db *sql.DB) gin.HandlerFunc {
+func addMatch(db *sql.DB) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var match matches
 		if c.ShouldBind(&match) == nil {
@@ -62,6 +62,33 @@ func addMatches(db *sql.DB) gin.HandlerFunc {
 			})
 		}
 	}
+	return gin.HandlerFunc(fn)
+}
+
+func removeMatch(db *sql.DB) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		var match matches
+		if c.ShouldBind(&match) == nil {
+			//delete
+			stmt, err := db.Prepare("DELETE FROM matches where teamNumber =?")
+			handleErr(400, err, c)
+
+			res, err := stmt.Exec(match.TeamNumber)
+			handleErr(400, err, c)
+
+			affect, err := res.RowsAffected()
+			handleErr(400, err, c)
+			if affect == 0 {
+				c.JSON(409, "failed")
+			} else {
+				c.JSON(200, gin.H{
+					"sucess": "event removed",
+					"affect": affect,
+				})
+			}
+		}
+	}
+
 	return gin.HandlerFunc(fn)
 }
 
