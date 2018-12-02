@@ -11,10 +11,10 @@ type Event struct {
 	EventID   int
 	EventName string
 	Owner     int
-	Match     []Matches
+	Match     []matches
 }
 
-type Matches struct {
+type matches struct {
 	MatchID         int
 	TeamName        string
 	TeamNumber      int
@@ -34,6 +34,35 @@ type newuser struct {
 	UserName string
 	Level    int
 	Password string
+}
+
+func addMatches(db *sql.DB) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		var match matches
+		if c.ShouldBind(&match) == nil {
+
+			newMatchesStmt, newMatchesStmtErr := db.Prepare("INSERT matches (teamName, teamNumber, eventName, matchScoreOne, matchScoreTwo, matchScoreThree, year) VALUES (?, ?, ?, ?, ?, ?, ?)")
+			handleErr(400, newMatchesStmtErr, c)
+
+			newMatchesRes, newMatchesResErr := newMatchesStmt.Exec(match.TeamName, match.TeamNumber, match.EventName, match.MatchScoreOne, match.MatchScoreTwo, match.MatchScoreThree, match.Year)
+			handleErr(400, newMatchesResErr, c)
+
+			id, err := newMatchesRes.LastInsertId()
+			handleErr(400, err, c)
+
+			c.JSON(200, gin.H{
+				"id":              id,
+				"teamName":        match.TeamName,
+				"teamNumber":      match.TeamNumber,
+				"eventName":       match.EventName,
+				"MatchScoreOne":   match.MatchScoreOne,
+				"MatchScoreTwo":   match.MatchScoreTwo,
+				"MatchScoreThree": match.MatchScoreThree,
+				"Year":            match.Year,
+			})
+		}
+	}
+	return gin.HandlerFunc(fn)
 }
 
 var identityKey = "id"
@@ -169,7 +198,7 @@ func getsingleevent(db *sql.DB) gin.HandlerFunc {
 			handleErr(400, EventErr, c)
 			MatchRows, MatchErr := db.Query("SELECT * FROM matches WHERE eventName= ?", eventName)
 			handleErr(400, MatchErr, c)
-			var matchesArray []Matches
+			var matchesArray []matches
 			for MatchRows.Next() {
 				var matchID int
 				var teamName string
@@ -181,7 +210,7 @@ func getsingleevent(db *sql.DB) gin.HandlerFunc {
 				var year int
 				MatchErr = MatchRows.Scan(&matchID, &teamName, &teamNumber, &eventName, &matchScoreOne, &matchScoreTwo, &matchScoreThree, &year)
 				handleErr(400, MatchErr, c)
-				f := Matches{
+				f := matches{
 					MatchID:         matchID,
 					TeamName:        teamName,
 					TeamNumber:      teamNumber,
@@ -219,7 +248,7 @@ func getallevents(db *sql.DB) gin.HandlerFunc {
 			handleErr(400, EventErr, c)
 			MatchRows, MatchErr := db.Query("SELECT * FROM matches WHERE eventName= ?", eventName)
 			handleErr(400, MatchErr, c)
-			var matchesArray []Matches
+			var matchesArray []matches
 			for MatchRows.Next() {
 				var matchID int
 				var teamName string
@@ -231,7 +260,7 @@ func getallevents(db *sql.DB) gin.HandlerFunc {
 				var year int
 				MatchErr = MatchRows.Scan(&matchID, &teamName, &teamNumber, &eventName, &matchScoreOne, &matchScoreTwo, &matchScoreThree, &year)
 				handleErr(400, MatchErr, c)
-				f := Matches{
+				f := matches{
 					MatchID:         matchID,
 					TeamName:        teamName,
 					TeamNumber:      teamNumber,
@@ -261,7 +290,7 @@ func getteam(db *sql.DB) gin.HandlerFunc {
 		teamnumber := c.Param("number")
 		teamRows, teamErr := db.Query("SELECT * FROM matches WHERE teamNumber = ?", teamnumber)
 		handleErr(400, teamErr, c)
-		var matchesArray []Matches
+		var matchesArray []matches
 		for teamRows.Next() {
 			var matchID int
 			var teamName string
@@ -273,7 +302,7 @@ func getteam(db *sql.DB) gin.HandlerFunc {
 			var year int
 			teamErr = teamRows.Scan(&matchID, &teamName, &teamNumber, &eventName, &matchScoreOne, &matchScoreTwo, &matchScoreThree, &year)
 			handleErr(400, teamErr, c)
-			f := Matches{
+			f := matches{
 				MatchID:         matchID,
 				TeamName:        teamName,
 				TeamNumber:      teamNumber,
@@ -294,7 +323,7 @@ func getteams(db *sql.DB) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		teamRows, teamErr := db.Query("SELECT * FROM matches")
 		handleErr(400, teamErr, c)
-		var matchesArray []Matches
+		var matchesArray []matches
 		for teamRows.Next() {
 			var matchID int
 			var teamName string
@@ -306,7 +335,7 @@ func getteams(db *sql.DB) gin.HandlerFunc {
 			var year int
 			teamErr = teamRows.Scan(&matchID, &teamName, &teamNumber, &eventName, &matchScoreOne, &matchScoreTwo, &matchScoreThree, &year)
 			handleErr(400, teamErr, c)
-			f := Matches{
+			f := matches{
 				MatchID:         matchID,
 				TeamName:        teamName,
 				TeamNumber:      teamNumber,
