@@ -176,6 +176,7 @@ func main() {
 		authRouter.POST("/event/removeevent", removeevent(DB))
 		authRouter.POST("/matches/addmatch", addMatch(DB))
 		authRouter.POST("/matches/removematch", removeMatch(DB))
+		authRouter.POST("/matches/updatematch", updateMatch(DB))
 
 	}
 

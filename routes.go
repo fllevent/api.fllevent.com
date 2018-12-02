@@ -36,6 +36,122 @@ type newuser struct {
 	Password string
 }
 
+func updateMatch(db *sql.DB) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		var match matches
+		if c.ShouldBind(&match) == nil {
+
+			if match.TeamName != "" {
+				MatchUpdateTeamNameStmt, MatchUpdateTeamNameStmtErr := db.Prepare("UPDATE matches SET teamName = ? WHERE matches.matchID = ? ")
+				handleErr(400, MatchUpdateTeamNameStmtErr, c)
+
+				MatchUpdateTeamNameRes, MatchUpdateTeamNameResErr := MatchUpdateTeamNameStmt.Exec(match.TeamName, match.MatchID)
+				handleErr(400, MatchUpdateTeamNameResErr, c)
+
+				id, err := MatchUpdateTeamNameRes.LastInsertId()
+				handleErr(400, err, c)
+
+				c.JSON(200, gin.H{
+					"RowAffected": id,
+					"newTeamName": match.TeamName,
+				})
+			}
+			if match.TeamNumber != 0 {
+				MatchUpdateTeamNameStmt, MatchUpdateTeamNameStmtErr := db.Prepare("UPDATE matches SET teamNumber = ? WHERE matches.matchID = ? ")
+				handleErr(400, MatchUpdateTeamNameStmtErr, c)
+
+				MatchUpdateTeamNameRes, MatchUpdateTeamNameResErr := MatchUpdateTeamNameStmt.Exec(match.TeamNumber, match.MatchID)
+				handleErr(400, MatchUpdateTeamNameResErr, c)
+
+				id, err := MatchUpdateTeamNameRes.LastInsertId()
+				handleErr(400, err, c)
+
+				c.JSON(200, gin.H{
+					"RowAffected":   id,
+					"newTeamNumber": match.TeamNumber,
+				})
+			}
+			if match.EventName != "" {
+				MatchUpdateTeamNameStmt, MatchUpdateTeamNameStmtErr := db.Prepare("UPDATE matches SET eventName = ? WHERE matches.matchID = ? ")
+				handleErr(400, MatchUpdateTeamNameStmtErr, c)
+
+				MatchUpdateTeamNameRes, MatchUpdateTeamNameResErr := MatchUpdateTeamNameStmt.Exec(match.EventName, match.MatchID)
+				handleErr(400, MatchUpdateTeamNameResErr, c)
+
+				id, err := MatchUpdateTeamNameRes.LastInsertId()
+				handleErr(400, err, c)
+
+				c.JSON(200, gin.H{
+					"RowAffected": id,
+					"newEvent":    match.EventName,
+				})
+			}
+			if match.MatchScoreOne != 0 {
+				MatchUpdateTeamNameStmt, MatchUpdateTeamNameStmtErr := db.Prepare("UPDATE matches SET matchScoreOne = ? WHERE matches.matchID = ? ")
+				handleErr(400, MatchUpdateTeamNameStmtErr, c)
+
+				MatchUpdateTeamNameRes, MatchUpdateTeamNameResErr := MatchUpdateTeamNameStmt.Exec(match.MatchScoreOne, match.MatchID)
+				handleErr(400, MatchUpdateTeamNameResErr, c)
+
+				id, err := MatchUpdateTeamNameRes.LastInsertId()
+				handleErr(400, err, c)
+
+				c.JSON(200, gin.H{
+					"RowAffected":   id,
+					"newFirstMatch": match.MatchScoreOne,
+				})
+			}
+			if match.MatchScoreTwo != 0 {
+				MatchUpdateTeamNameStmt, MatchUpdateTeamNameStmtErr := db.Prepare("UPDATE matches SET matchScoreTwo = ? WHERE matches.matchID = ? ")
+				handleErr(400, MatchUpdateTeamNameStmtErr, c)
+
+				MatchUpdateTeamNameRes, MatchUpdateTeamNameResErr := MatchUpdateTeamNameStmt.Exec(match.MatchScoreTwo, match.MatchID)
+				handleErr(400, MatchUpdateTeamNameResErr, c)
+
+				id, err := MatchUpdateTeamNameRes.LastInsertId()
+				handleErr(400, err, c)
+
+				c.JSON(200, gin.H{
+					"RowAffected":    id,
+					"newSecondMatch": match.MatchScoreTwo,
+				})
+			}
+			if match.MatchScoreThree != 0 {
+				MatchUpdateTeamNameStmt, MatchUpdateTeamNameStmtErr := db.Prepare("UPDATE matches SET matchScoreThree = ? WHERE matches.matchID = ? ")
+				handleErr(400, MatchUpdateTeamNameStmtErr, c)
+
+				MatchUpdateTeamNameRes, MatchUpdateTeamNameResErr := MatchUpdateTeamNameStmt.Exec(match.MatchScoreThree, match.MatchID)
+				handleErr(400, MatchUpdateTeamNameResErr, c)
+
+				id, err := MatchUpdateTeamNameRes.LastInsertId()
+				handleErr(400, err, c)
+
+				c.JSON(200, gin.H{
+					"RowAffected":   id,
+					"newThirdMatch": match.MatchScoreThree,
+				})
+			}
+			if match.Year != 0 {
+				MatchUpdateTeamNameStmt, MatchUpdateTeamNameStmtErr := db.Prepare("UPDATE matches SET year = ? WHERE matches.matchID = ? ")
+				handleErr(400, MatchUpdateTeamNameStmtErr, c)
+
+				MatchUpdateTeamNameRes, MatchUpdateTeamNameResErr := MatchUpdateTeamNameStmt.Exec(match.TeamName, match.MatchID)
+				handleErr(400, MatchUpdateTeamNameResErr, c)
+
+				id, err := MatchUpdateTeamNameRes.LastInsertId()
+				handleErr(400, err, c)
+
+				c.JSON(200, gin.H{
+					"RowAffected": id,
+					"newYear":     match.Year,
+				})
+			}
+
+		}
+	}
+	return gin.HandlerFunc(fn)
+}
+
 func addMatch(db *sql.DB) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		var match matches
