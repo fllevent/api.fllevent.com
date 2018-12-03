@@ -34,6 +34,7 @@ type newuser struct {
 	UserName string
 	Level    int
 	Password string
+	UserID   int
 }
 
 func updateMatch(db *sql.DB) gin.HandlerFunc {
@@ -239,6 +240,65 @@ func healthcheck() gin.HandlerFunc {
 		c.JSON(200, healthOK)
 	}
 
+	return gin.HandlerFunc(fn)
+}
+
+func updateUser(db *sql.DB) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		var user newuser
+		if c.ShouldBind(&user) == nil {
+
+			if user.UserName != "" {
+				UpdateStmt, UpdateStmtErr := db.Prepare("UPDATE users SET userName = ? WHERE users.userID = ? ")
+				handleErr(400, UpdateStmtErr, c)
+
+				UpdateRes, UpdateResErr := UpdateStmt.Exec(user.UserName, user.UserID)
+				handleErr(400, UpdateResErr, c)
+
+				id, err := UpdateRes.LastInsertId()
+				handleErr(400, err, c)
+
+				c.JSON(200, gin.H{
+					"RowAffected": id,
+					"newName":     user.UserName,
+				})
+			}
+			if user.Password != "" {
+				UpdateStmt, UpdateStmtErr := db.Prepare("UPDATE users SET password = ? WHERE users.userID = ? ")
+				handleErr(400, UpdateStmtErr, c)
+
+				pass, passerr := HashPassword(user.Password)
+				handleErr(400, passerr, c)
+
+				UpdateRes, UpdateResErr := UpdateStmt.Exec(pass, user.UserID)
+				handleErr(400, UpdateResErr, c)
+
+				id, err := UpdateRes.LastInsertId()
+				handleErr(400, err, c)
+
+				c.JSON(200, gin.H{
+					"RowAffected": id,
+					"newPass":     user.Password,
+					"pass":        pass,
+				})
+			}
+			if user.Level != 0 {
+				UpdateStmt, UpdateStmtErr := db.Prepare("UPDATE users SET level = ? WHERE users.userID = ? ")
+				handleErr(400, UpdateStmtErr, c)
+
+				UpdateRes, UpdateResErr := UpdateStmt.Exec(user.Level, user.UserID)
+				handleErr(400, UpdateResErr, c)
+
+				id, err := UpdateRes.LastInsertId()
+				handleErr(400, err, c)
+
+				c.JSON(200, gin.H{
+					"RowAffected": id,
+					"newLevel":    user.Level,
+				})
+			}
+		}
+	}
 	return gin.HandlerFunc(fn)
 }
 
